@@ -1,41 +1,55 @@
 import PySimpleGUI as sg
 
-def criar_janela_login():
+def criar_janela_cadastro_kit(kits_atuais):
     sg.theme('DarkBlue14')
-    layout = [
-        [sg.Text('PaceHub', font=('Helvetica', 25), justification='center', expand_x=True)],
-        [sg.Text('Sua plataforma de gestão de corridas.', font=('Helvetica', 12), justification='center', expand_x=True)],
-        [sg.VPush()],
-        [sg.Text('CPF*'), sg.Input(key='-CPF_LOGIN-')],
-        [sg.Text('Senha*'), sg.Input(key='-SENHA_LOGIN-', password_char='*')],
-        [sg.Text('* Campos obrigatórios', text_color='red')],
-        [sg.Button('Login', size=(10, 1), expand_x=True)],
-        [sg.Text('_' * 40)],
-        [sg.Text('Ainda não tem uma conta? Cadastre-se agora!')],
-        [sg.Button('Cadastrar como Atleta', key='-CADASTRO_ATLETA-', expand_x=True)],
-        [sg.Button('Cadastrar como Organizador', key='-CADASTRO_ORGANIZADOR-', expand_x=True)],
-        [sg.VPush()],
-    ]
-    return sg.Window('PaceHub - Bem-vindo', layout, size=(400, 350), finalize=True)
 
-def criar_janela_cadastro(perfil: str):
-    sg.theme('DarkBlue14')
-    layout_usuario = [
-        [sg.Text(f'Cadastro de {perfil}', font=('Helvetica', 20))],
-        [sg.Frame('Dados Pessoais', [
-            [sg.Text('Nome Completo*', size=(15, 1)), sg.Input(key='-NOME-')],
-            [sg.Text('CPF*', size=(15, 1)), sg.Input(key='-CPF-')],
-            [sg.Text('Email*', size=(15,1)), sg.Input(key='-EMAIL-')],
-            [sg.Text('Senha*', size=(15,1)), sg.Input(key='-SENHA-', password_char='*')],
-        ])],
-        [sg.Text('* Todos os campos são obrigatórios.', text_color='red')],
-        [sg.Button('Cadastrar', key='-CADASTRAR-', size=(10, 1))],
-        [sg.Button('Voltar', key='-VOLTAR-', size=(10, 1))]
+    layout_coluna_esquerda = [
+        [sg.Text('Adicionar Novo Kit', font=('Helvetica', 16))],
+        [sg.Text('Nome do Kit*', size=(12, 1)), sg.Input(key='-NOME_KIT-')],
+        [sg.Text('Descrição*', size=(12, 1)), sg.Multiline(key='-DESCRICAO-', size=(35, 4))],
+        [sg.Text('Valor (R$)*', size=(12, 1)), sg.Input(key='-VALOR-', size=(15,1))],
+        [sg.Button('Adicionar Kit', key='-ADICIONAR_KIT-')]
     ]
-    return sg.Window(f'PaceHub - Cadastro de {perfil}', [layout_usuario], finalize=True, resizable=True)
+
+    layout_coluna_direita = [
+        [sg.Text('Kits do Evento', font=('Helvetica', 16))],
+        [sg.Listbox(values=kits_atuais, key='-LISTA_KITS-', size=(40, 8))],
+        [sg.Button('Remover Selecionado', key='-REMOVER_KIT-')]
+    ]
+
+    layout = [
+        [sg.Column(layout_coluna_esquerda), sg.VSeperator(), sg.Column(layout_coluna_direita)],
+        [sg.HorizontalSeparator()],
+        [sg.Button('Salvar e Voltar', key='-SALVAR_KITS-')]
+    ]
+    
+    return sg.Window('PaceHub - Cadastro de Kits do Evento', layout, finalize=True, modal=True)
+
+
+def criar_janela_novo_evento():
+    sg.theme('DarkBlue14')
+
+    layout = [
+        [sg.Text('Criar Novo Evento', font=('Helvetica', 20))],
+        [sg.Text('Nome do Evento*', size=(25,1)), sg.Input(key='-NOME_EVENTO-')],
+        [sg.Text('Data do Evento*', size=(25,1)), sg.Input(key='-DATA_EVENTO-', size=(12,1), readonly=True), sg.CalendarButton('Selecionar', target='-DATA_EVENTO-', format='%d/%m/%Y')],
+        [sg.Text('Distância (km)*', size=(25,1)), sg.Combo(['5', '10', '21', '42'], key='-DISTANCIA-', readonly=True)],
+        [sg.Text('Kits do Evento*', size=(25,1)), sg.Button('Cadastrar Kits', key='-CADASTRAR_KITS-'), sg.Text('', key='-STATUS_KITS-')],
+        [sg.Text('Local de Largada*', size=(25,1)), sg.Input(key='-LOCAL-')],
+        [sg.Text('Tempo de Corte*', size=(25,1)),
+         sg.Input(key='-HORAS-', size=(4,1), default_text='6'), sg.Text('horas e'),
+         sg.Input(key='-MINUTOS-', size=(4,1), default_text='0'), sg.Text('minutos')],
+        [sg.Text('Data Limite para Cancelamento*', size=(25,1)), sg.Input(key='-DATA_CANCEL-', size=(12,1), readonly=True), sg.CalendarButton('Selecionar', target='-DATA_CANCEL-', format='%d/%m/%Y')],
+        [sg.Text('* Campos obrigatórios', text_color='red')],
+        [sg.Button('Salvar Evento', key='-SALVAR_EVENTO-'), sg.Button('Cancelar', key='-CANCELAR-')]
+    ]
+
+    return sg.Window('PaceHub - Novo Evento', layout, finalize=True, resizable=True)
 
 def exibir_popup_erro(mensagem: str):
-    sg.popup_error(mensagem)
+    """Exibe uma janela de pop-up de erro padronizada."""
+    sg.popup_error(mensagem, title="Erro")
 
-def exibir_popup_sucesso(mensagem: str, dados: str):
-    sg.popup(mensagem, dados)
+def exibir_popup_sucesso(titulo: str, mensagem: str):
+    """Exibe uma janela de pop-up de sucesso padronizada."""
+    sg.popup(titulo, mensagem, title="Sucesso")

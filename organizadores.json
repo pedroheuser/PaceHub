@@ -1,0 +1,8 @@
+[
+    {
+        "nome": "Organizador Teste",
+        "cpf": "111.222.333-44",
+        "email": "teste@email.com",
+        "senha_hash": "senha_teste"
+    }
+]
