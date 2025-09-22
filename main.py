@@ -4,15 +4,14 @@ from visao import criar_janela_novo_evento, criar_janela_cadastro_kit, exibir_po
 from evento import Evento
 from kit_de_corrida import KitDeCorrida
 from database import Database
+from datetime import datetime
 
 
-def executar_criar_evento():
+def executar_criar_evento(db: Database):
     # SIMULAÇÃO: No sistema completo, esta informação viria da tela de login.
     # Para este teste, vamos fixar o CPF de um organizador.
     # Certifique-se de que um organizador com este CPF existe em 'organizadores.json'
     CPF_ORGANIZADOR_LOGADO = "111.222.333-44" 
-
-    db = Database()
     
     organizador_encontrado = any(org.cpf == CPF_ORGANIZADOR_LOGADO for org in db.carregar_organizadores())
     if not organizador_encontrado:
@@ -30,6 +29,26 @@ def executar_criar_evento():
 
         if window == janela_principal and event in (sg.WIN_CLOSED, '-CANCELAR-'):
             break
+
+        if event == '-BOTAO_CALENDARIO_EVENTO-' or event == '-BOTAO_CALENDARIO_CANCEL-':
+            meses = ('Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro')
+            dias = ('Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb')
+
+            data_tuple = sg.popup_get_date(
+                month_names=meses,
+                day_abbreviations=dias,
+                title="Selecione uma data"
+            )
+
+            if data_tuple: 
+                mes, dia, ano = data_tuple
+                data_formatada = f"{dia:02d}/{mes:02d}/{ano}"
+                
+                if event == '-BOTAO_CALENDARIO_EVENTO-':
+                    janela_principal['-DATA_EVENTO-'].update(data_formatada)
+                else: 
+                    janela_principal['-DATA_CANCEL-'].update(data_formatada)
+
 
         if event == '-CADASTRAR_KITS-':
             janela_kits = criar_janela_cadastro_kit(kits_do_evento_obj)
@@ -74,6 +93,21 @@ def executar_criar_evento():
             if any(not values[campo] for campo in campos_obrigatorios) or not kits_do_evento_obj:
                 exibir_popup_erro('Por favor, preencha todos os campos e cadastre pelo menos um kit.')
                 continue
+            
+            try:
+                data_evento_str = values['-DATA_EVENTO-']
+                data_cancel_str = values['-DATA_CANCEL-']
+
+                data_evento_obj = datetime.strptime(data_evento_str, '%d/%m/%Y')
+                data_cancel_obj = datetime.strptime(data_cancel_str, '%d/%m/%Y')
+
+                if data_cancel_obj > data_evento_obj:
+                    exibir_popup_erro('Erro de Lógica', 'A data limite para cancelamento não pode ser posterior à data do evento.')
+                    continue 
+
+            except ValueError:
+                exibir_popup_erro('Erro de Formato', 'As datas inseridas não são válidas.')
+                continue
 
             tempo_corte = f"{values['-HORAS-']}:{values['-MINUTOS-']}"
             distancia_str = values['-DISTANCIA-']
@@ -97,4 +131,11 @@ def executar_criar_evento():
 
 
 if __name__ == '__main__':
-    executar_criar_evento()
+    db = None 
+    try:
+        db = Database() 
+        executar_criar_evento(db) 
+    finally:
+        if db:
+            print("\nFechando conexão com o banco de dados.")
+            db.fechar_conexao()

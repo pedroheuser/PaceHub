@@ -32,23 +32,23 @@ def criar_janela_novo_evento():
     layout = [
         [sg.Text('Criar Novo Evento', font=('Helvetica', 20))],
         [sg.Text('Nome do Evento*', size=(25,1)), sg.Input(key='-NOME_EVENTO-')],
-        [sg.Text('Data do Evento*', size=(25,1)), sg.Input(key='-DATA_EVENTO-', size=(12,1), readonly=True), sg.CalendarButton('Selecionar', target='-DATA_EVENTO-', format='%d/%m/%Y')],
+        [sg.Text('Data do Evento*', size=(25,1)), sg.Input(key='-DATA_EVENTO-', size=(12,1), readonly=True), sg.Button('Selecionar', key='-BOTAO_CALENDARIO_EVENTO-')],
         [sg.Text('Distância (km)*', size=(25,1)), sg.Combo(['5', '10', '21', '42'], key='-DISTANCIA-', readonly=True)],
         [sg.Text('Kits do Evento*', size=(25,1)), sg.Button('Cadastrar Kits', key='-CADASTRAR_KITS-'), sg.Text('', key='-STATUS_KITS-')],
         [sg.Text('Local de Largada*', size=(25,1)), sg.Input(key='-LOCAL-')],
         [sg.Text('Tempo de Corte*', size=(25,1)),
          sg.Input(key='-HORAS-', size=(4,1), default_text='6'), sg.Text('horas e'),
          sg.Input(key='-MINUTOS-', size=(4,1), default_text='0'), sg.Text('minutos')],
-        [sg.Text('Data Limite para Cancelamento*', size=(25,1)), sg.Input(key='-DATA_CANCEL-', size=(12,1), readonly=True), sg.CalendarButton('Selecionar', target='-DATA_CANCEL-', format='%d/%m/%Y')],
+        [sg.Text('Data Limite para Cancelamento*', size=(25,1)), sg.Input(key='-DATA_CANCEL-', size=(12,1), readonly=True), sg.Button('Selecionar', key='-BOTAO_CALENDARIO_CANCEL-')],
         [sg.Text('* Campos obrigatórios', text_color='red')],
         [sg.Button('Salvar Evento', key='-SALVAR_EVENTO-'), sg.Button('Cancelar', key='-CANCELAR-')]
     ]
 
     return sg.Window('PaceHub - Novo Evento', layout, finalize=True, resizable=True)
 
-def exibir_popup_erro(mensagem: str):
-    """Exibe uma janela de pop-up de erro padronizada."""
-    sg.popup_error(mensagem, title="Erro")
+def exibir_popup_erro(titulo: str, mensagem: str):
+    """Exibe uma janela de pop-up de erro com título e mensagem personalizados."""
+    sg.popup(titulo, mensagem, title='Erro')
 
 def exibir_popup_sucesso(titulo: str, mensagem: str):
     """Exibe uma janela de pop-up de sucesso padronizada."""
